@@ -11,9 +11,9 @@ struct EmojiMemoryGameView: View {
     
     @ObservedObject
     var viewModel: EmojiMemoryGame
-
+    
     var body: some View {
- 
+        
         VStack {
             
             CardsScrollView
@@ -29,7 +29,7 @@ struct EmojiMemoryGameView: View {
             ForEach(viewModel.cards) { card in
                 
                 VStack {
-                
+                    
                     CardView(card)
                         .aspectRatio(2/3, contentMode: .fit)
                         .padding(4)
@@ -37,11 +37,11 @@ struct EmojiMemoryGameView: View {
                             viewModel.choose(card)
                         }
                     
-//                    Text(card.id)
+                    //                    Text(card.id)
                 }
             }
         }
-         .foregroundColor(.orange)
+        .foregroundColor(.orange)
     }
     
     // MARK: - ViewBuilder
@@ -63,7 +63,7 @@ struct EmojiMemoryGameView: View {
         }
         .padding()
     }
-
+    
 }
 
 // MARK: - CardView
@@ -85,7 +85,7 @@ struct CardView: View {
         ZStack {
             
             let base = RoundedRectangle(cornerRadius: cornerRadius)
-                            
+            
             Group {
                 
                 base.fill(.white)
@@ -95,7 +95,7 @@ struct CardView: View {
                     .minimumScaleFactor(0.01)
                     .aspectRatio(1, contentMode: .fit)
             }
-                .opacity(card.isFaceUp ? 1 : 0)
+            .opacity(card.isFaceUp ? 1 : 0)
             base.fill()
                 .opacity(card.isFaceUp ? 0 : 1)
         }

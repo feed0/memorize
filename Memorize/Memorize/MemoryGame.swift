@@ -79,7 +79,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
               
               """)
     }
-        
+    
     // MARK: - Card
     
     struct Card: Equatable, Identifiable, CustomDebugStringConvertible {
