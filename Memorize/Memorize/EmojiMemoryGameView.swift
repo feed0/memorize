@@ -15,36 +15,64 @@ struct EmojiMemoryGameView: View {
     var body: some View {
  
         VStack {
-            ScrollView {
-                cards
-            }
-            Button("Shuffle") {
-                viewModel.shuffle()
-            }
-            .padding()
+            
+            CardsScrollView
+            ShuffleButtonView
         }
+        .padding()
     }
     
     var cards: some View {
         
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 0)], spacing: 0) {
             
-            ForEach(viewModel.cards.indices, id: \.self) { index in
-                CardView(viewModel.cards[index])
-                    .aspectRatio(2/3, contentMode: .fit)
-                    .padding(4)
+            ForEach(viewModel.cards) { card in
+                
+                VStack {
+                
+                    CardView(card)
+                        .aspectRatio(2/3, contentMode: .fit)
+                        .padding(4)
+                        .onTapGesture {
+                            viewModel.choose(card)
+                        }
+                    
+//                    Text(card.id)
+                }
             }
         }
          .foregroundColor(.orange)
     }
     
+    // MARK: - ViewBuilder
+    
+    @ViewBuilder
+    private var CardsScrollView: some View {
+        
+        ScrollView {
+            cards
+                .animation(.bouncy, value: viewModel.cards)
+        }
+    }
+    
+    @ViewBuilder
+    private var ShuffleButtonView: some View {
+        
+        Button("Shuffle") {
+            viewModel.shuffle()
+        }
+        .padding()
+    }
+
 }
+
+// MARK: - CardView
 
 struct CardView: View {
     
     let card: MemoryGame<String>.Card
     
-    let cornerRadius = 20.0
+    let cornerRadius = 23.0
     let lineWidth = 2.0
     let fontSize = 80.0
     
@@ -71,6 +99,7 @@ struct CardView: View {
             base.fill()
                 .opacity(card.isFaceUp ? 0 : 1)
         }
+        .opacity(card.isMatched ? 0 : 1)
     }
 }
 
