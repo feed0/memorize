@@ -11,11 +11,11 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     
     private(set) var cards: [Card]
     
-    init(numberOfCardPairs: Int, cardContentFactory: (Int) -> CardContent) {
+    init(cardPairsCount: Int, cardContentFactory: (Int) -> CardContent) {
         
         cards = []
         
-        for pairIndex in 0 ..< max(2, numberOfCardPairs) { /// Ensures at least 2 card pairs
+        for pairIndex in 0 ..< max(2, cardPairsCount) { /// Ensures at least 2 card pairs
             
             let content = cardContentFactory(pairIndex) /// Returns an emoji at pairIndex
             
@@ -51,7 +51,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
             """)
     }
     
-    mutating func choose(_ card: Card) { // TODO: - change finding a Card by id to finding by memory address hex
+    mutating func choose(_ card: Card) { // FIXME: - change finding a Card by id to finding by memory address hex
         
         if let chosenIndex = cards.firstIndex(where: { $0.id == card.id }) {
             

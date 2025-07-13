@@ -16,43 +16,37 @@ struct EmojiMemoryGameView: View {
         
         VStack {
             
-            CardsScrollView
+            cards
+                .background(.blue.opacity(0.2))
+                .animation(.bouncy, value: viewModel.cards)
             ShuffleButtonView
+                .background()
         }
         .padding()
+        .background(Color.green.opacity(0.2))
     }
     
-    var cards: some View {
-        
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 0)], spacing: 0) {
-            
-            ForEach(viewModel.cards) { card in
-                
-                VStack {
-                    
-                    CardView(card)
-                        .aspectRatio(2/3, contentMode: .fit)
-                        .padding(4)
-                        .onTapGesture {
-                            viewModel.choose(card)
-                        }
-                    
-                    //                    Text(card.id)
-                }
-            }
-        }
-        .foregroundColor(.orange)
-    }
-    
-    // MARK: - ViewBuilder
+    // MARK: - View builder
     
     @ViewBuilder
-    private var CardsScrollView: some View {
+    var cards: some View {
         
-        ScrollView {
-            cards
-                .animation(.bouncy, value: viewModel.cards)
+        let aspectRatio: CGFloat = 2/3
+        let isDebugEnabled = false
+        let cardPadding = 4.0
+        
+        AspectVGrid(
+            viewModel.cards,
+            aspectRatio: aspectRatio
+        ) { card in
+            
+            CardView(card, enableDebugText: isDebugEnabled)
+                .padding(cardPadding)
+                .onTapGesture {
+                    viewModel.choose(card)
+                }
         }
+        .foregroundColor(.orange)
     }
     
     @ViewBuilder
@@ -63,7 +57,6 @@ struct EmojiMemoryGameView: View {
         }
         .padding()
     }
-    
 }
 
 // MARK: - CardView
@@ -75,33 +68,52 @@ struct CardView: View {
     let cornerRadius = 23.0
     let lineWidth = 2.0
     let fontSize = 80.0
+    let isDebugTextEnabled: Bool
     
-    init(_ card: MemoryGame<String>.Card) {
+    init(_ card: MemoryGame<String>.Card, enableDebugText: Bool) {
         self.card = card
+        self.isDebugTextEnabled = enableDebugText
     }
     
     var body: some View {
         
-        ZStack {
+        VStack {
             
-            let base = RoundedRectangle(cornerRadius: cornerRadius)
-            
-            Group {
+            /// Face and Back
+            ZStack {
                 
-                base.fill(.white)
-                base.strokeBorder(lineWidth: lineWidth)
-                Text(card.content)
-                    .font(.system(size: fontSize))
-                    .minimumScaleFactor(0.01)
-                    .aspectRatio(1, contentMode: .fit)
+                let base = RoundedRectangle(cornerRadius: cornerRadius)
+                
+                /// Face
+                Group {
+                    
+                    base.fill(.white)
+                    base.strokeBorder(lineWidth: lineWidth)
+                    Text(card.content)
+                        .font(.system(size: fontSize))
+                        .minimumScaleFactor(0.01)
+                        .aspectRatio(1, contentMode: .fit)
+                }
+                .opacity(card.isFaceUp ? 1 : 0)
+                
+                /// Back
+                base.fill()
+                    .opacity(card.isFaceUp ? 0 : 1)
             }
-            .opacity(card.isFaceUp ? 1 : 0)
-            base.fill()
-                .opacity(card.isFaceUp ? 0 : 1)
+            /// Matched
+            .opacity(card.isMatched ? 0 : 1)
+            .background()
+            
+            /// Card debug identifier
+            if isDebugTextEnabled {
+                Text(card.id)
+                    .background()
+            }
         }
-        .opacity(card.isMatched ? 0 : 1)
     }
 }
+
+// MARK: - Preview
 
 #Preview {
     EmojiMemoryGameView(viewModel: EmojiMemoryGame())

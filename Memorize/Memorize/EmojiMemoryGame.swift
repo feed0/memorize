@@ -12,11 +12,11 @@ class EmojiMemoryGame: ObservableObject {
     // MARK: - Statics
     private static let emojis = ["🦄", "🐇", "🐢", "🦎", "🦖", "🦕", "🦓", "🦔"]
     
-    private static let numberOfEmojiPairs = 16
+    private static let emojiPairsCount = 12
     
     private static func createMemoryGame() -> MemoryGame<String> {
         
-        return MemoryGame(numberOfCardPairs: numberOfEmojiPairs) {
+        return MemoryGame(cardPairsCount: emojiPairsCount) {
             
             pairIndex in /// model.init(..., cardContentFactory: (Int) -> CardContent)
             
