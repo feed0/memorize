@@ -9,22 +9,25 @@ import Foundation
 
 struct MemoryGame<CardContent> where CardContent: Equatable {
     
+    // MARK: - Attributes
+    
     private(set) var cards: [Card]
     
-    init(cardPairsCount: Int, cardContentFactory: (Int) -> CardContent) {
+    // MARK: - Init
+    
+    init(cardPairsCount: Int,
+         cardContentFactory: (Int) -> CardContent) {
         
         cards = []
         
-        for pairIndex in 0 ..< max(2, cardPairsCount) { /// Ensures at least 2 card pairs
-            
-            let content = cardContentFactory(pairIndex) /// Returns an emoji at pairIndex
-            
-            let units = ["a", "b"]
-            
-            for unit in units { /// Appends a pair of emoji cards
+        for pairIndex in 0 ..< max(2, cardPairsCount) {
+            let content = cardContentFactory(pairIndex)
+            let pairIdSuffix = ["a", "b"]
+
+            for id in pairIdSuffix {
                 cards.append(Card(
-                    content: content,
-                    id: "\(pairIndex + 1)-\(unit)"
+                    id: "\(pairIndex + 1)-\(id)",
+                    content: content
                 ))
             }
         }
@@ -40,19 +43,15 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     // MARK: - Intents
     
     mutating func shuffle() {
-        
         cards.shuffle()
         
-        print("""
-            [SHUFFLE!] \\/''\\/''\\/''
-            \(cards)
-            [SHUFFLE!] /\\../\\../\\..
-            
-            """)
+        print(Constants.MemoryGame.suffleLogMessage, cards)
     }
     
     mutating func choose(_ card: Card) { // FIXME: - change finding a Card by id to finding by memory address hex
-        
+
+        print(Constants.MemoryGame.chooseLogMessage, card)
+
         if let chosenIndex = cards.firstIndex(where: { $0.id == card.id }) {
             
             if !cards[chosenIndex].isFaceUp && !cards[chosenIndex].isMatched {
@@ -72,23 +71,15 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
             }
         }
         
-        print("""
-              [Chosen!] \\/''\\/''\\/''
-              \(card) \(card.isFaceUp ? "\t| UP" : "\t| DOWN")
-              [Chosen!] /\\../\\../\\..
-              
-              """)
     }
     
     // MARK: - Card
     
     struct Card: Equatable, Identifiable, CustomDebugStringConvertible {
-        
+        var id: String
         var isFaceUp: Bool = false
         var isMatched: Bool = false
         let content: CardContent
-        
-        var id: String
         
         var debugDescription: String {
             """
@@ -99,7 +90,6 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
 }
 
 extension Array {
-    
     var only: Element? {
         count == 1 ? first : nil
     }

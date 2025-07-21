@@ -9,15 +9,17 @@ import SwiftUI
 
 class EmojiMemoryGame: ObservableObject {
     
-    // MARK: - Statics
-    private static let emojis = ["🦄", "🐇", "🐢", "🦎", "🦖", "🦕", "🦓", "🦔"]
+    // MARK: - Attributes
     
-    private static let emojiPairsCount = 12
+    private static let emojis = Constants.EmojiMemoryGame.emojis
+    private static let emojiPairCount = Constants.EmojiMemoryGame.emojiPairCount
+        
+    typealias Card = MemoryGame<String>.Card
+    
+    // MARK: - Create memory game
     
     private static func createMemoryGame() -> MemoryGame<String> {
-        
-        return MemoryGame(cardPairsCount: emojiPairsCount) {
-            
+        return MemoryGame(cardPairsCount: emojiPairCount) {
             pairIndex in /// model.init(..., cardContentFactory: (Int) -> CardContent)
             
             if emojis.indices.contains(pairIndex) {
@@ -34,8 +36,12 @@ class EmojiMemoryGame: ObservableObject {
     @Published
     private var model = createMemoryGame()
     
-    var cards: Array<MemoryGame<String>.Card> {
-        return model.cards
+    var cards: Array<Card> {
+        model.cards
+    }
+    
+    var color: Color {
+          .orange
     }
     
     // MARK: - Intents
@@ -44,7 +50,7 @@ class EmojiMemoryGame: ObservableObject {
         model.shuffle()
     }
     
-    func choose(_ card: MemoryGame<String>.Card) {
+    func choose(_ card: Card) {
         model.choose(card)
     }
 }
