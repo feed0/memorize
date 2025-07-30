@@ -12,6 +12,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     // MARK: - Attributes
     
     private(set) var cards: [Card]
+    private(set) var score = 0
     
     // MARK: - Init
     
@@ -25,9 +26,9 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
             let pairIdSuffix = ["a", "b"]
 
             for id in pairIdSuffix {
-                cards.append(Card(
-                    id: "\(pairIndex + 1)-\(id)",
-                    content: content
+                cards.append(Card(id: "\(pairIndex + 1)-\(id)",
+                                  content: content,
+                                  isFaceUp: false
                 ))
             }
         }
@@ -62,6 +63,15 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                         
                         cards[chosenIndex].isMatched = true
                         cards[potentialMatchIndex].isMatched = true
+                        
+                        score += 2
+                    } else {
+                        if cards[chosenIndex].hasBeenSeen {
+                            score -= 1
+                        }
+                        if cards[potentialMatchIndex].hasBeenSeen {
+                            score -= 1
+                        }
                     }
                 } else {
                     indexOfTheOnlyFaceUpCard = chosenIndex
@@ -77,9 +87,18 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     
     struct Card: Equatable, Identifiable, CustomDebugStringConvertible {
         var id: String
-        var isFaceUp: Bool = false
         var isMatched: Bool = false
+        
+        var hasBeenSeen: Bool = false
         let content: CardContent
+        
+        var isFaceUp: Bool {
+            didSet {
+                if oldValue && !isFaceUp {
+                    hasBeenSeen = true
+                }
+            }
+        }
         
         var debugDescription: String {
             """

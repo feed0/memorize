@@ -7,40 +7,54 @@
 
 import SwiftUI
 
-struct Cardify: ViewModifier {
-    let isFaceUp: Bool
-    let isDebugTextEnabled: Bool
+struct Cardify: ViewModifier, Animatable {
+    
+    // MARK: - Properties
+    
     let id: String
+    let isDebugTextEnabled: Bool
+    
     var isMatched: Bool
+    var isFaceUp: Bool {
+        rotation < Constants.Cardify.IsFaceUpRotation.threshold
+    }
+    
+    // MARK: - Animation properties
+    
+    var rotation: Double
+    var animatableData: Double {
+        get { rotation }
+        set { rotation = newValue }
+    }
 
+    // MARK: - Init
+    
+    init(id: String,
+         isDebugTextEnabled: Bool,
+         isMatched: Bool,
+         isFaceUp: Bool) {
+        self.id = id
+        self.isDebugTextEnabled = isDebugTextEnabled
+        self.isMatched = isMatched
+        rotation = isFaceUp ? Constants.Cardify.IsFaceUpRotation.isUp : Constants.Cardify.IsFaceUpRotation.isDown
+    }
+    
+    // MARK: - Body
+    
     func body(content: Content) -> some View {
-        
         VStack {
             
-            /// Face and Back
             ZStack {
-                
-                let base = RoundedRectangle(cornerRadius: Constants.Cardify.cornerRadius)
-                
-                /// Face
-                base.strokeBorder(lineWidth: Constants.Cardify.lineWidth)
-                    .background(base.fill(.white))
-                    .overlay(content)
-                    .opacity(isFaceUp
-                             ? Constants.Opacity.show
-                             : Constants.Opacity.hide)
-                                
-                /// Back
-                base.fill()
-                    .opacity(isFaceUp
-                             ? Constants.Opacity.hide
-                             : Constants.Opacity.show)
+                face(for: content)
+                back(for: content)
             }
             /// Matched
-            .opacity(isMatched
+            .opacity(isMatched && !isFaceUp
                      ? Constants.Opacity.hide
                      : Constants.Opacity.show)
             .background()
+            .rotation3DEffect(.degrees(rotation),
+                              axis: Constants.Cardify.Rotation3dEffectAngles.yAxis)
             
             /// Card debug identifier
             if isDebugTextEnabled {
@@ -49,6 +63,30 @@ struct Cardify: ViewModifier {
             }
             
         }
+    }
+    
+    // MARK: - Subviews
+    
+    @ViewBuilder
+    func face(for content: Content) -> some View {
+        let base = RoundedRectangle(cornerRadius: Constants.Cardify.cornerRadius)
+        
+        base.strokeBorder(lineWidth: Constants.Cardify.lineWidth)
+            .background(base.fill(.white))
+            .overlay(content)
+            .opacity(isFaceUp
+                     ? Constants.Opacity.show
+                     : Constants.Opacity.hide)
+    }
+    
+    @ViewBuilder
+    func back(for content: Content) -> some View {
+        let base = RoundedRectangle(cornerRadius: Constants.Cardify.cornerRadius)
+
+        base.fill()
+            .opacity(isFaceUp
+                     ? Constants.Opacity.hide
+                     : Constants.Opacity.show)
     }
 }
 
@@ -61,9 +99,9 @@ extension View {
         id: String = "",
         isMatched: Bool = false
     ) -> some View {
-        modifier(Cardify(isFaceUp: isFaceUp,
+        modifier(Cardify(id: id,
                          isDebugTextEnabled: isDebugTextEnabled,
-                         id: id,
-                         isMatched: isMatched))
+                         isMatched: isMatched,
+                         isFaceUp: isFaceUp))
     }
 }

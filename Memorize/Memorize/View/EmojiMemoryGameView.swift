@@ -9,7 +9,9 @@ import SwiftUI
 
 struct EmojiMemoryGameView: View {
     
-    // MARK: - Attributes
+    // MARK: - Properties
+    
+    typealias Card = MemoryGame<String>.Card
     
     @ObservedObject var viewModel: EmojiMemoryGame
     
@@ -18,7 +20,12 @@ struct EmojiMemoryGameView: View {
     var body: some View {
         VStack {
             cards
-            shuffleButtonView
+            HStack {
+                scoreView
+                Spacer()
+                shuffleButtonView
+            }
+            .font(.largeTitle)
         }
         .padding()
     }
@@ -35,11 +42,23 @@ struct EmojiMemoryGameView: View {
                     aspectRatio: cardAspectRatio) { card in
             CardView(card, enableDebugText: isDebugEnabled)
                 .padding(cardPadding)
+                .overlay(FlyingNumberView(number: scoreChange(causedBy: card)))
                 .onTapGesture {
-                    viewModel.choose(card)
+                    withAnimation(.easeInOut(duration: Constants.EmojiMemoryGameView.chooseCardAnimationDuration)) {
+                        viewModel.choose(card)
+                    }
                 }
         }
         .foregroundColor(Constants.EmojiMemoryGame.color)
+    }
+    
+    @ViewBuilder
+    private var scoreView: some View {
+        let scoreLabel = Constants.EmojiMemoryGameView.scoreLabel
+        
+        Text(String(format: scoreLabel,
+                    "\(viewModel.score)"))
+            .animation(nil)
     }
     
     @ViewBuilder
@@ -47,9 +66,17 @@ struct EmojiMemoryGameView: View {
         let suffleButtonLabel = Constants.EmojiMemoryGameView.shuffleButtonLabel
         
         Button(suffleButtonLabel) {
-            viewModel.shuffle()
+            withAnimation {
+                viewModel.shuffle()
+            }
         }
         .padding()
+    }
+    
+    // MARK: - Functions
+    
+    private func scoreChange(causedBy card: Card) -> Int {
+        return 0
     }
 }
 

@@ -34,7 +34,12 @@ struct CardView: View {
                         .font(.system(size: Constants.FontSize.largest))
                         .minimumScaleFactor(Constants.FontSize.scaleFactor)
                         .aspectRatio(Constants.CardView.aspectRatio, contentMode: .fit)
-                        .padding(Constants.Pie.inset  )
+                        .padding(Constants.Pie.inset)
+                        .rotationEffect(.degrees(card.isMatched
+                                                 ? Constants.CardView.RotationEffect.matched
+                                                 : Constants.CardView.RotationEffect.unmatched))
+                        .animation(.spin(duration: Constants.CardView.spinAnimationDuration),
+                                   value: card.isMatched)
                 )
                 .padding(Constants.CardView.inset)
                 .cardify(isFaceUp: card.isFaceUp,
@@ -42,6 +47,14 @@ struct CardView: View {
                          id: card.id,
                          isMatched: card.isMatched)
         }
+    }
+}
+
+// MARK: - Animation extension
+
+extension Animation {
+    static func spin(duration: TimeInterval) -> Animation {
+        .linear(duration: duration).repeatForever(autoreverses: false)
     }
 }
 
@@ -62,12 +75,13 @@ private struct PreviewView: View {
                 let cardId = "Card ID 000"
                 let cardContent = "😌"
                 CardView(Card(id: cardId,
-                              content: cardContent),
+                              content: cardContent,
+                              isFaceUp: false),
                          enableDebugText: true)
                 
                 CardView(Card(id: cardId,
-                              isFaceUp: true,
-                              content: cardContent),
+                              content: cardContent,
+                              isFaceUp: true),
                          enableDebugText: true)
             }
             
@@ -80,15 +94,17 @@ private struct PreviewView: View {
                 let cardContent = "🐦‍🔥"
                 
                 CardView(Card(id: cardId,
-                              isFaceUp: true,
                               isMatched: true,
-                              content: "🐦‍🔥"),
+                              hasBeenSeen: true,
+                              content: cardContent,
+                              isFaceUp: true),
                          enableDebugText: true)
                 
                 CardView(Card(id: cardId,
-                              isFaceUp: true,
                               isMatched: true,
-                              content: "🐦‍🔥"),
+                              hasBeenSeen: true,
+                              content: cardContent,
+                              isFaceUp: false),
                          enableDebugText: true)
             }
             
